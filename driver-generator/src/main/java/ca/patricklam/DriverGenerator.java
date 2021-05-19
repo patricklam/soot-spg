@@ -40,7 +40,6 @@ class DriverTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map options) {
-        // Map<String, List<SootClass>> classes_map = new HashMap<>();
         int classCount = 0;
         StringBuffer sb = new StringBuffer();
         sb.append("class Driver {\n");
