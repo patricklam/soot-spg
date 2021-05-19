@@ -2,6 +2,8 @@ package ca.patricklam;
 
 import java.util.*;
 import soot.*;
+import soot.tagkit.*;
+import soot.util.Chain;
 import soot.options.Options;
 
 public class DriverGenerator {
@@ -38,5 +40,53 @@ class DriverTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map options) {
+        // Map<String, List<SootClass>> classes_map = new HashMap<>();
+        int classCount = 0;
+        StringBuffer sb = new StringBuffer();
+        sb.append("class Driver {\n");
+        sb.append("    public static void main(String[] argv) {");
+        Chain<SootClass> appClasses = Scene.v().getApplicationClasses();
+        for (SootClass appClass : appClasses) {
+            if (!appClass.isConcrete() || appClass.getName().contains("$") || appClass.isLibraryClass())
+                continue;
+
+            boolean hasTests = false;
+            for (SootMethod sm : appClass.getMethods()) {
+                if (isTestMethod(sm) && !sm.isPrivate()) {
+                    hasTests = true;
+                }
+            }
+            if (!hasTests)
+                continue;
+
+            String obj_name = String.format("obj%d", classCount);
+            sb.append(String.format("\n        %s %s = new %s();\n", appClass.getName(), obj_name, appClass.getName()));
+            for (SootMethod sm : appClass.getMethods()) {
+                if (isTestMethod(sm) && !sm.isPrivate()) {
+                    Chain<Unit> units = sm.getActiveBody().getUnits();
+                    sb.append(String.format("        %s.%s(); // %d units\n", obj_name, sm.getName(), units.size()));
+                }
+            }
+            classCount++;
+        }
+        sb.append("    }\n");
+        sb.append("}\n");
+        System.out.println(sb);
+    }
+
+    boolean isTestMethod(SootMethod sm) {
+        if (sm.getName().startsWith("test") && sm.getParameterCount() == 0 && sm.getReturnType().toString().equals("void"))
+            return true;
+
+        List<Tag> smTags = sm.getTags();
+        VisibilityAnnotationTag tag = (VisibilityAnnotationTag) sm.getTag("VisibilityAnnotationTag");
+        if (tag != null) {
+            for (AnnotationTag annotation : tag.getAnnotations()) {
+                if (annotation.getType().equals("Lorg/junit/Test;")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
