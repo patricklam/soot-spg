@@ -1,0 +1,1 @@
+java -jar soot-4.2.1-jar-with-dependencies.jar -W -app -f j -p jb use-original-names:true -p cg.spark on -p cg.spark simplify-offline:true -p jop.cse on -p wjop.smb on -p wjop.si off -cp .:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar -process-dir multi-classes
