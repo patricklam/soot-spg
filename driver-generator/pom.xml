@@ -1,0 +1,50 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <groupId>ca.patricklam</groupId>
+  <artifactId>driver-generator</artifactId>
+  <version>1</version>
+
+  <properties>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.soot-oss</groupId>
+      <artifactId>soot</artifactId>
+      <version>4.1.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>ca.patricklam.DriverGenerator</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <finalName>standalone</finalName>
+        </configuration>
+        <executions>
+            <execution>
+                <id>standalone</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>single</goal>
+                </goals>
+            </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
