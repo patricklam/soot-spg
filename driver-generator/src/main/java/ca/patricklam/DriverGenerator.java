@@ -9,7 +9,7 @@ import soot.options.Options;
 public class DriverGenerator {
     public static void main(String[] argv) {
         String baseDir = "/home/plam/production/21.soot-spg/driver-generator/Benchmarks/microbenchmark/";
-        // wjtp: whole Jimple transformation pack
+
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.myTransform", DriverTransformer.v()));
         Options.v().set_prepend_classpath(true);
         Options.v().set_verbose(true);
@@ -31,9 +31,6 @@ public class DriverGenerator {
 class DriverTransformer extends SceneTransformer {
     private final static DriverTransformer instance = new DriverTransformer();
 
-    private DriverTransformer() {
-    }
-
     public static DriverTransformer v() {
         return instance;
     }
@@ -43,7 +40,7 @@ class DriverTransformer extends SceneTransformer {
         int classCount = 0;
         StringBuffer sb = new StringBuffer();
         sb.append("class Driver {\n");
-        sb.append("    public static void main(String[] argv) {");
+        sb.append("  public static void main(String[] argv) {");
         Chain<SootClass> appClasses = Scene.v().getApplicationClasses();
         for (SootClass appClass : appClasses) {
             if (!appClass.isConcrete() || appClass.getName().contains("$") || appClass.isLibraryClass())
@@ -58,17 +55,17 @@ class DriverTransformer extends SceneTransformer {
             if (!hasTests)
                 continue;
 
-            String obj_name = String.format("obj%d", classCount);
-            sb.append(String.format("\n        %s %s = new %s();\n", appClass.getName(), obj_name, appClass.getName()));
+            String obj_name = String.format ("obj%d", classCount);
+            sb.append(String.format("\n    %s %s = new %s();\n", appClass.getName(), obj_name, appClass.getName()));
             for (SootMethod sm : appClass.getMethods()) {
                 if (isTestMethod(sm) && !sm.isPrivate()) {
                     Chain<Unit> units = sm.getActiveBody().getUnits();
-                    sb.append(String.format("        %s.%s(); // %d units\n", obj_name, sm.getName(), units.size()));
-                }
+                    sb.append(String.format("    %s.%s(); // %d units\n", obj_name, sm.getName(), units.size()));
+                    }
             }
             classCount++;
         }
-        sb.append("    }\n");
+        sb.append("  }\n");
         sb.append("}\n");
         System.out.println(sb);
     }
@@ -89,3 +86,4 @@ class DriverTransformer extends SceneTransformer {
         return false;
     }
 }
+
